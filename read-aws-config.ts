@@ -9,14 +9,19 @@ export interface AwsConfig {
 }
 
 export async function readAwsSsoConfig(): Promise<AwsConfig[]> {
-  // $HOME/.aws/config
   const fileData = await Deno.readTextFile(Deno.env.get('HOME') + '/.aws/config')
-  const profileDatas = fileData.split('[profile ');
+  const profileDatas = fileData.split('[');
   const configs: AwsConfig[] = [];
   for (const profileData of profileDatas) {
     const config: Partial<AwsConfig> = {};
     const [profileLine, ...lines] = profileData.split(/\r?\n/);
-    const profile = profileLine.substring(0, profileLine.length - 1);
+    if (profileLine.includes('default')) {
+      continue;
+    }
+    const [,profile] = /profile ([\w-_]*)\]?/.exec(profileLine) ?? [];
+    if (!profile) {
+      continue;
+    }
     config.profile = profile;
     for (const line of lines) {
       const [key, value] = line.split(/\s*=\s*/);
