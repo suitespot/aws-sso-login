@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-read --allow-env --watch main.ts",
+    "compile": "deno compile --unstable --allow-read --allow-env --allow-run --output=bin/aws-sso-login main.ts"
+  }
+}
